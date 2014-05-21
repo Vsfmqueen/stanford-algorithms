@@ -10,15 +10,15 @@ public class QuickSort {
 	}
 
 	private static void divideArray(Integer[] array, int start, int end) {
-		int middle = start + (end - start) / 2;
-
-		if (end <= start) {
-			return;
-		}
-
 		
+        if (end <= start) {
+            return;
+        }
+
+        int middle = start + (end - start) / 2;
+        
 		divideArray(array, start, middle);
-		divideArray(array, middle + 1, end);
+        divideArray(array, middle, end);
 		
 		System.out.println("Start = " + start + " End = " + end);
 		
