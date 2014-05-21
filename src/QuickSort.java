@@ -2,11 +2,15 @@ import java.util.Arrays;
 
 public class QuickSort {
 
-    private static Integer[] array = { 3, 8, 2, 5, 1, 4, 7, 6 };
+    private static int comparasionCount = 0;
+    
+    private static Integer[] array = {3, 9, 8, 4, 6, 10, 2, 5, 7, 1};
 
     public static void main(String... args) {
 
         sortArray(array, 0, array.length - 1);
+        
+        System.out.println(comparasionCount);
     }
 
     private static void sortArray(Integer[] array, int start, int end) {
@@ -22,6 +26,10 @@ public class QuickSort {
     }
 
     private static int partition(Integer[] array, int start, int end) {
+
+        int arrayLength = end - start;
+        comparasionCount += arrayLength;
+
         int i = start + 1;
         int j = start + 1;
 
