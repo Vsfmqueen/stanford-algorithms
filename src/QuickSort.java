@@ -15,45 +15,40 @@ public class QuickSort {
 
     private static void sortArray(Integer[] array, int start, int end) {
 
-        boolean middlePivot = true;
-        
         if (end <= start) {
             return;
         }
 
-      //  int middle = calculateMiddleFirstCase(array, start, end);
-      //  int middle = calculateMiddleSecondCase(array, start, end);
-        int middle = partition(array, start, end, true);
-      
+      //  int middle = calculateFirstCase(array, start, end);
+      //  int middle = calculateSecondCase(array, start, end);
+        
+        int pivotElement = detectPivotElement(array, start, end);
+        int pivotIndex = Arrays.asList(array).indexOf(pivotElement);
+        
+         exchange(array, pivotIndex, start);
+        int middle = partition(array, start, end);
+        
         sortArray(array, start, middle - 1);
         sortArray(array, middle + 1, end);
     }
 
-    private static int calculateMiddleFirstCase(Integer[] array, int start, int end) {
-        boolean middlePivot = false;
-        return partition(array, start, end, middlePivot);
+    private static int calculateFirstCase(Integer[] array, int start, int end) {
+        return partition(array, start, end);
     }
     
-    private static int calculateMiddleSecondCase(Integer[] array, int start, int end) {
-        boolean middlePivot = false;
+    private static int calculateSecondCase(Integer[] array, int start, int end) {
         exchange(array, start, end);
-        return partition(array, start, end, middlePivot);
+        return partition(array, start, end);
     }
     
-    private static int partition(Integer[] array, int start, int end, boolean middlePivot) {
+    private static int partition(Integer[] array, int start, int end) {
 
         int arrayLength = end - start;
         comparasionCount += arrayLength;
 
         int i = start + 1;
         int j = start + 1;
-        int pivotElement;
-        
-        if (middlePivot) {
-            pivotElement = detectPivotElement(array, start, end);
-        } else {
-            pivotElement = array[start];
-        }
+        int pivotElement = array[start];
 
         while (j <= end) {
             if (array[j] < pivotElement) {
@@ -86,19 +81,24 @@ public class QuickSort {
         int pivotElement;
 
         if (startElement < endElement) {
-            pivotElement = findSmallerElement(middleElement, startElement);
+            pivotElement = findMiddle(startElement, middleElement, endElement);
         } else {
-            pivotElement = findSmallerElement(middleElement, endElement);
+            pivotElement = findMiddle(endElement, middleElement, startElement);
         }
+
+        System.out.println("Start = " + startElement + " Middle = " + middleElement + " End = " + endElement
+                + " Pivot = " + pivotElement);
 
         return pivotElement;
     }
     
-    private static int findSmallerElement(int firstElement, int endElement) {
-        if (firstElement > endElement) {
-            return firstElement;
-        } else {
-            return endElement;
+    private static int findMiddle(int start, int mid, int end) {
+        if (mid <= start) {
+            return start;
         }
+        if (mid >= start && mid <= end) {
+            return mid;
+        }
+        return end;
     }
 }
