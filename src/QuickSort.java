@@ -1,15 +1,34 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class QuickSort {
 
     private static int comparasionCount = 0;
-    
-    private static Integer[] array = {3, 9, 8, 4, 6, 10, 2, 5, 7, 1};
+
+    private static Integer[] array = new Integer[10000];
 
     public static void main(String... args) {
 
+        Scanner scanner = null;
+        File file = new File("c:\\numbers.txt");
+        try {
+            scanner = new Scanner(file);
+            int i = 0;
+            while (scanner.hasNext()) {
+                Integer number = scanner.nextInt();
+                array[i] = number;
+                i++;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            scanner.close();
+        }
+
         sortArray(array, 0, array.length - 1);
-        
+
         System.out.println(comparasionCount);
     }
 
@@ -19,15 +38,10 @@ public class QuickSort {
             return;
         }
 
-      //  int middle = calculateFirstCase(array, start, end);
-      //  int middle = calculateSecondCase(array, start, end);
-        
-        int pivotElement = detectPivotElement(array, start, end);
-        int pivotIndex = Arrays.asList(array).indexOf(pivotElement);
-        
-         exchange(array, pivotIndex, start);
-        int middle = partition(array, start, end);
-        
+        int middle = calculateFirstCase(array, start, end);
+        // int middle = calculateSecondCase(array, start, end);
+        // int middle = calculateThirdCase(array, start, end);
+
         sortArray(array, start, middle - 1);
         sortArray(array, middle + 1, end);
     }
@@ -35,12 +49,23 @@ public class QuickSort {
     private static int calculateFirstCase(Integer[] array, int start, int end) {
         return partition(array, start, end);
     }
-    
+
     private static int calculateSecondCase(Integer[] array, int start, int end) {
         exchange(array, start, end);
         return partition(array, start, end);
     }
-    
+
+    private static int calculateThirdCase(Integer[] array, int start, int end) {
+        int pivotElement = detectPivotElement(array, start, end);
+        int pivotIndex = Arrays.asList(array).indexOf(pivotElement);
+
+        if (start != pivotIndex) {
+            exchange(array, pivotIndex, start);
+        }
+
+        return partition(array, start, end);
+    }
+
     private static int partition(Integer[] array, int start, int end) {
 
         int arrayLength = end - start;
@@ -59,7 +84,6 @@ public class QuickSort {
         }
 
         exchange(array, start, i - 1);
-        System.out.println(Arrays.deepToString(array));
         return i - 1;
     }
 
@@ -70,12 +94,13 @@ public class QuickSort {
         array[firstIndex] = array[secondIndex];
         array[secondIndex] = a;
     }
-    
+
     private static int detectPivotElement(Integer[] array, int start, int end) {
-        int middle = (end - start) / 2;
 
         int startElement = array[start];
         int endElement = array[end];
+
+        int middle = start + (end - start) / 2;
         int middleElement = array[middle];
 
         int pivotElement;
@@ -86,12 +111,9 @@ public class QuickSort {
             pivotElement = findMiddle(endElement, middleElement, startElement);
         }
 
-        System.out.println("Start = " + startElement + " Middle = " + middleElement + " End = " + endElement
-                + " Pivot = " + pivotElement);
-
         return pivotElement;
     }
-    
+
     private static int findMiddle(int start, int mid, int end) {
         if (mid <= start) {
             return start;
