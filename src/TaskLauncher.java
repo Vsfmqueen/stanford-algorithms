@@ -1,29 +1,40 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
 public class TaskLauncher {
 
-    private static HashMap<Integer, LinkedList<Integer>> array = new HashMap<Integer, LinkedList<Integer>>();
+    //change LinkedList to ArrayList
+    private static HashMap<Integer, ArrayList<Edge>> array;
 
+    private static ArrayList<Edge> initialEdges;
+    
     private static int minCutNumber;
+    
+    private static int iterationCount = 1000;
 
     public static void main(String[] args) {
-        scanFile();
-        cutGraph();
+
+        for (int i = 0; i < iterationCount; i++) {
+            array = new HashMap<Integer, ArrayList<Edge>>();
+            scanFile();
+            cutGraph();
+        }
+
+        System.out.println("Min cut number: " + minCutNumber);
+        System.out.println("Initial edges: " + initialEdges);
     }
 
     private static void scanFile() {
-        File file = new File("c:\\graph.txt");
+        File file = new File("c:\\graph_1.txt");
 
-        Scanner scanner;
+        Scanner scanner = null;
         try {
             scanner = new Scanner(file);
             int lineNumber = 1;
@@ -31,18 +42,23 @@ public class TaskLauncher {
 
                 String row = scanner.nextLine();
                 String[] rowArray = row.split(" ", row.length());
-                LinkedList<Integer> integerRow = new LinkedList<Integer>();
+                ArrayList<Edge> integerRow = new ArrayList<Edge>();
                 for (int i = 0; i < rowArray.length; i++) {
-                    integerRow.add(Integer.parseInt(rowArray[i]));
+                    Integer secondVertice = Integer.parseInt(rowArray[i]);
+                    String initialEdge = "{" + lineNumber + ", " + secondVertice + "}";
+                    Edge edge = new Edge(secondVertice, initialEdge);
+                    integerRow.add(edge);
                 }
                 array.put(lineNumber, integerRow);
                 lineNumber++;
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } finally {
+            scanner.close();
         }
         
-        System.out.println("Current array: " + array);
+       // System.out.println("Current array: " + array);
     }
 
     private static void cutGraph() {
@@ -57,12 +73,12 @@ public class TaskLauncher {
                 firstVertice = rand.nextInt(edgesCount);
             }
 
-            LinkedList<Integer> currentRow = array.get(firstVertice);
+            ArrayList<Edge> currentRow = array.get(firstVertice);
             
-            int secondVerticeIndex = rand.nextInt(currentRow.size() - 1);
+            int secondVerticeIndex = rand.nextInt(currentRow.size() > 1 ? currentRow.size() - 1 : 1);
+            int secondVertice = array.get(firstVertice).get(secondVerticeIndex).getSecondVertice(); 
             
-            int secondVertice = array.get(firstVertice).get(secondVerticeIndex); // !
-            System.out.println("First vertice = " + firstVertice + " second vertice = " + secondVertice);
+      //      System.out.println("First vertice = " + firstVertice + " second vertice = " + secondVertice);
             changeEdge(firstVertice, secondVertice);
         }
 
@@ -72,51 +88,49 @@ public class TaskLauncher {
             int rowSize = array.get(key).size();
             if (minCutNumber == 0 || rowSize < minCutNumber) {
                 minCutNumber = rowSize;
+                initialEdges = array.get(key);
                 break;
             }
         }
         
-        System.out.println("Min cut number: " + minCutNumber);
+   //     System.out.println("Min cut number: " + minCutNumber);
+        
+     
     }
 
     private static void changeEdge(Integer firstVertice, Integer secondVertice) {
 
-        // dependencies of the row by firstVertice
-        LinkedList<Integer> dependencies = array.get(firstVertice);
-
+        // add dependencies from 1st vertice to 2nd vertice
+        ArrayList<Edge> dependencies = array.get(firstVertice);
         array.get(secondVertice).addAll(dependencies);
-
-        System.out.println("Added edges: " + array);
+       // System.out.println("Added edges: " + array);
         
-        for (Integer edge : dependencies) {
-            List<Integer> adjacentedRow = array.get(edge);
-            
-            ListIterator<Integer> adjacentIterator = (ListIterator<Integer>) adjacentedRow.iterator();
+        //select raws from array by index from 1st vertice dependencies 
+        for (Edge edge : dependencies) {
+            List<Edge> adjacentedRow = array.get(edge.getSecondVertice());
 
-            // check every row in
-            while (adjacentIterator.hasNext()) {
-                Integer rowEdge = adjacentIterator.next();
-
+            // search firstVertice in selected row, change the it to the 2nd one  
+           
+            for(Edge rowEdge: adjacentedRow) {
                 // change the first edge on the second vertice
-                if (firstVertice.equals(rowEdge)) {
-                    adjacentIterator.remove();
-                    adjacentIterator.add(secondVertice);
+                if (firstVertice.equals(rowEdge.getSecondVertice())) {
+                    rowEdge.setSecondVertice(secondVertice);
                 }
             }
         }
 
         array.remove(firstVertice);
-        System.out.println("Removed row: " + array);
+      //  System.out.println("Removed row: " + array);
         removeCircleEdge(array.get(secondVertice), secondVertice);
     }
 
-    private static void removeCircleEdge(List<Integer> verticeRow, Integer secondVertice) {
-        Iterator<Integer> verticeRowIterator = verticeRow.iterator();
+    private static void removeCircleEdge(List<Edge> verticeRow, Integer secondVertice) {
+        Iterator<Edge> verticeRowIterator = verticeRow.iterator();
         while (verticeRowIterator.hasNext()) {
-            if (secondVertice.equals(verticeRowIterator.next())) {
+            if (secondVertice.equals(verticeRowIterator.next().getSecondVertice())) {
                 verticeRowIterator.remove();
             }
         }
-        System.out.println("Removed circle edges: " + array);
+       // System.out.println("Removed circle edges: " + array);
     }
 }

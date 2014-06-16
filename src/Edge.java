@@ -1,18 +1,10 @@
 public class Edge {
-    private Integer firstVertice;
     private Integer secondVertice;
+    private String initialEdge;
 
-    public Edge(Integer firstVertice, Integer secondVertice) {
-        this.firstVertice = firstVertice;
+    public Edge(Integer secondVertice, String initialEdge) {
         this.secondVertice = secondVertice;
-    }
-
-    public Integer getFirstVertice() {
-        return firstVertice;
-    }
-
-    public void setFirstVertice(Integer firstVertice) {
-        this.firstVertice = firstVertice;
+        this.initialEdge = initialEdge;
     }
 
     public Integer getSecondVertice() {
@@ -23,11 +15,19 @@ public class Edge {
         this.secondVertice = secondVertice;
     }
 
+    public String getInitialEdge() {
+        return initialEdge;
+    }
+
+    public void setInitialEdge(String initialEdge) {
+        this.initialEdge = initialEdge;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((firstVertice == null) ? 0 : firstVertice.hashCode());
+        result = prime * result + ((initialEdge == null) ? 0 : initialEdge.hashCode());
         result = prime * result + ((secondVertice == null) ? 0 : secondVertice.hashCode());
         return result;
     }
@@ -41,10 +41,10 @@ public class Edge {
         if (getClass() != obj.getClass())
             return false;
         Edge other = (Edge) obj;
-        if (firstVertice == null) {
-            if (other.firstVertice != null)
+        if (initialEdge == null) {
+            if (other.initialEdge != null)
                 return false;
-        } else if (!firstVertice.equals(other.firstVertice))
+        } else if (!initialEdge.equals(other.initialEdge))
             return false;
         if (secondVertice == null) {
             if (other.secondVertice != null)
@@ -56,6 +56,6 @@ public class Edge {
 
     @Override
     public String toString() {
-        return "Edge [firstVertice=" + firstVertice + ", secondVertice=" + secondVertice + "]";
+        return "Edge [secondVertice=" + secondVertice + ", initialEdge=" + initialEdge + "]";
     }
 }
