@@ -82,24 +82,11 @@ public class TaskLauncher {
             int secondVerticeIndex = rand.nextInt(currentRow.size() > 1 ? currentRow.size() - 1 : 1);
             int secondVertice = array.get(firstVertice).get(secondVerticeIndex).getSecondVertice();
 
-            // System.out.println("First vertice = " + firstVertice +
-            // " second vertice = " + secondVertice);
+            // System.out.println("First vertice = " + firstVertice +" second vertice = " + secondVertice);
             changeEdge(firstVertice, secondVertice);
         }
 
-        Set<Integer> keySet = array.keySet();
-
-        for (Integer key : keySet) {
-            int rowSize = array.get(key).size();
-            if (minCutNumber == 0 || rowSize < minCutNumber) {
-                minCutNumber = rowSize;
-                initialEdges = array.get(key);
-                break;
-            }
-        }
-
-        // System.out.println("Min cut number: " + minCutNumber);
-
+        selectMinCutsNumber();
     }
 
     private static void changeEdge(Integer firstVertice, Integer secondVertice) {
@@ -136,5 +123,18 @@ public class TaskLauncher {
             }
         }
         // System.out.println("Removed circle edges: " + array);
+    }
+    
+    private static void selectMinCutsNumber() {
+        Set<Integer> keySet = array.keySet();
+
+        for (Integer key : keySet) {
+            int rowSize = array.get(key).size();
+            if (minCutNumber == 0 || rowSize < minCutNumber) {
+                minCutNumber = rowSize;
+                initialEdges = array.get(key);
+                break;
+            }
+        }
     }
 }
