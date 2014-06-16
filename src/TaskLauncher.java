@@ -57,7 +57,11 @@ public class TaskLauncher {
                 firstVertice = rand.nextInt(edgesCount);
             }
 
-            int secondVertice = array.get(firstVertice).get(0); // !
+            LinkedList<Integer> currentRow = array.get(firstVertice);
+            
+            int secondVerticeIndex = rand.nextInt(currentRow.size() - 1);
+            
+            int secondVertice = array.get(firstVertice).get(secondVerticeIndex); // !
             System.out.println("First vertice = " + firstVertice + " second vertice = " + secondVertice);
             changeEdge(firstVertice, secondVertice);
         }
