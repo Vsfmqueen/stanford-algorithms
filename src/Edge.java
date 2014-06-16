@@ -56,6 +56,7 @@ public class Edge {
 
     @Override
     public String toString() {
+       // return secondVertice.toString();
         return "Edge [secondVertice=" + secondVertice + ", initialEdge=" + initialEdge + "]";
     }
 }
