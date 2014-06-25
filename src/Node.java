@@ -6,6 +6,8 @@ import java.util.ArrayList;
 public class Node {
     private Integer value;
     private ArrayList<Node> ongoingNodes;
+    private ArrayList<Node> backwardNodes;
+
     private boolean exploredNode;
 
     public Node() {
@@ -14,6 +16,7 @@ public class Node {
     public Node(Integer value) {
         this.value = value;
         this.ongoingNodes = new ArrayList<Node>();
+        this.backwardNodes = new ArrayList<Node>();
     }
 
     public Integer getValue() {
@@ -40,11 +43,31 @@ public class Node {
         this.exploredNode = exploredNode;
     }
 
+    public ArrayList<Node> getBackwardNodes() {
+        return backwardNodes;
+    }
+
+    public void setBackwardNodes(ArrayList<Node> backwardNodes) {
+        this.backwardNodes = backwardNodes;
+    }
+
     @Override
     public String toString() {
+
+  //      String ongoingNodesString = "Ongoing nodes : ";
+        String backwardNodesString = "Backward nodes : ";
+
+/*        for (Node node : ongoingNodes) {
+            ongoingNodesString += node.getValue() + " ";
+        }*/
+
+        for (Node node : backwardNodes) {
+            backwardNodesString += node.getValue() + " ";
+        }
+
         return "Node{" +
                 "exploredNode=" + exploredNode +
-                ", value=" + value +
+                ", value=" + value + /*", ongoing=" + ongoingNodesString +*/ ", backward=" + backwardNodesString +
                 '}';
     }
 }

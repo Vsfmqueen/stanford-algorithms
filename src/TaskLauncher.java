@@ -6,7 +6,7 @@ public class TaskLauncher {
 
     private static HashMap<Integer, Node> initialGraph = new HashMap();
 
-    private static ArrayList<Node> nodes;
+    private static LinkedHashSet<Node> backwardGraph = new LinkedHashSet();
 
     private static Node biggestNode;
 
@@ -15,6 +15,12 @@ public class TaskLauncher {
         int greatestElement = initialGraph.size();
         biggestNode = initialGraph.get(greatestElement);
         exploreNode(biggestNode);
+
+        Set <Integer> keys = initialGraph.keySet();
+
+        for (Node node : backwardGraph) {
+            System.out.println("Backward Node: " + node);
+        }
     }
 
     private static void scanFile() {
@@ -33,7 +39,6 @@ public class TaskLauncher {
             scanner.close();
         }
 
-        nodes =  new ArrayList(initialGraph.values());
     }
 
     private static void fillArray(String row, HashMap<Integer, Node> initialGraph) {
@@ -63,10 +68,13 @@ public class TaskLauncher {
             node.setExploredNode(true);
             List<Node> onGoingNodes = node.getOngoingNodes();
             for (Node onGoingNode : onGoingNodes) {
+                onGoingNode.getBackwardNodes().add(node);
                 if (!onGoingNode.isExploredNode()) {
                     exploreNode(onGoingNode);
                 }
             }
+
+            node.setOngoingNodes(null);
 
             if (node.equals(biggestNode)) {
                 //  System.out.println("Explored Node: " + node);
@@ -80,7 +88,9 @@ public class TaskLauncher {
                 biggestNode = nextNode;
                 exploreNode(biggestNode);
             }
-            System.out.println("Explored Node: " + node);
+   //         node.setOngoingNodes(null);
+            backwardGraph.add(node);
+         //   System.out.println("Explored Node: " + node);
         }
     }
 
@@ -93,14 +103,14 @@ public class TaskLauncher {
           //  System.out.println("nodeValue = " + nodeValue);
             newBiggest = initialGraph.get(nodeValue);
             if (!newBiggest.isExploredNode()) {
-                System.out.println("Explored Node: " + biggestNode);
+           //     biggestNode.setOngoingNodes(null);
+                backwardGraph.add(biggestNode);
+                //System.out.println("Explored Node: " + biggestNode);
                 break;
             }
             nodeValue--;
         }
 
         return newBiggest;
-        //System.out.println("Biggest = " + biggestNode);
-
     }
 }
