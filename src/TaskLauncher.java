@@ -58,7 +58,7 @@ public class TaskLauncher {
     }
 
     private static void exploreNode(Node node) {
-    //    System.out.println("Current Node: " + node);
+        //    System.out.println("Current Node: " + node);
         if (!node.isExploredNode()) {
             node.setExploredNode(true);
             List<Node> onGoingNodes = node.getOngoingNodes();
@@ -69,26 +69,38 @@ public class TaskLauncher {
             }
 
             if (node.equals(biggestNode)) {
-                findNextBiggestNode();
+                //  System.out.println("Explored Node: " + node);
+                Node nextNode = findNextBiggestNode();
+
+                if (nextNode.equals(biggestNode)) {
+                    System.out.print("The end");
+                    return;
+                }
+
+                biggestNode = nextNode;
                 exploreNode(biggestNode);
             }
-
             System.out.println("Explored Node: " + node);
         }
     }
 
-    private static void findNextBiggestNode() {
+    private static Node findNextBiggestNode() {
         Integer nodeValue = biggestNode.getValue();
-        System.out.println("Node Value = " + nodeValue);
 
-        Node newBiggest = initialGraph.get(nodeValue);
+        Node newBiggest = null;
 
-        System.out.println("New Biggest = " + newBiggest);
-
-        while (newBiggest.isExploredNode()) {
-            nodeValue--;
+        while (nodeValue != 0) {
+          //  System.out.println("nodeValue = " + nodeValue);
             newBiggest = initialGraph.get(nodeValue);
+            if (!newBiggest.isExploredNode()) {
+                System.out.println("Explored Node: " + biggestNode);
+                break;
+            }
+            nodeValue--;
         }
-        biggestNode = newBiggest;
+
+        return newBiggest;
+        //System.out.println("Biggest = " + biggestNode);
+
     }
 }
