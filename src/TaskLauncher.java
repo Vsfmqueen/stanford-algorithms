@@ -2,13 +2,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+/*
+* change HashMap to ArrayList
+* change Node to index
+* */
+
 public class TaskLauncher {
 
     private static HashMap<Integer, Node> initialGraph = new HashMap();
 
-    private static LinkedHashSet<Node> backwardGraph = new LinkedHashSet();
+    private static ArrayList<Node> backwardGraph = new ArrayList();
+
+    private static ArrayList<Integer> componentsLengths;
 
     private static Node biggestNode;
+
+    private static Integer componentLength = 0;
 
     public static void main(String... args) {
         scanFile();
@@ -16,11 +25,20 @@ public class TaskLauncher {
         biggestNode = initialGraph.get(greatestElement);
         exploreNode(biggestNode);
 
-        Set <Integer> keys = initialGraph.keySet();
+        initialGraph = null;
+
+        //костыль
+        backwardGraph.remove(backwardGraph.size()-1);
 
         for (Node node : backwardGraph) {
             System.out.println("Backward Node: " + node);
         }
+
+/*        biggestNode = backwardGraph.get(backwardGraph.size() - 1);
+        componentsLengths = new ArrayList();
+
+        exploreBackwardNode(biggestNode);
+        System.out.print(componentsLengths);*/
     }
 
     private static void scanFile() {
@@ -69,12 +87,11 @@ public class TaskLauncher {
             List<Node> onGoingNodes = node.getOngoingNodes();
             for (Node onGoingNode : onGoingNodes) {
                 onGoingNode.getBackwardNodes().add(node);
+
                 if (!onGoingNode.isExploredNode()) {
                     exploreNode(onGoingNode);
                 }
             }
-
-            node.setOngoingNodes(null);
 
             if (node.equals(biggestNode)) {
                 //  System.out.println("Explored Node: " + node);
@@ -88,9 +105,44 @@ public class TaskLauncher {
                 biggestNode = nextNode;
                 exploreNode(biggestNode);
             }
-   //         node.setOngoingNodes(null);
+            node.setOngoingNodes(node.getBackwardNodes());
             backwardGraph.add(node);
          //   System.out.println("Explored Node: " + node);
+        }
+    }
+
+    private static void exploreBackwardNode(Node node) {
+        //    System.out.println("Current Node: " + node);
+        if (node.isExploredNode()) {
+            node.setExploredNode(false);
+            List<Node> onGoingNodes = node.getOngoingNodes();
+            for (Node onGoingNode : onGoingNodes) {
+
+                componentLength++;
+
+                if (onGoingNode.isExploredNode()) {
+                    exploreBackwardNode(onGoingNode);
+                }
+            }
+
+            node.setOngoingNodes(null);
+
+            if (node.equals(biggestNode)) {
+                //  System.out.println("Explored Node: " + node);
+
+                Node nextNode = findNextBiggestBackwardNode(biggestNode);
+
+                if (nextNode.equals(biggestNode)) {
+                    System.out.print("The end");
+                    return;
+                }
+
+                componentsLengths.add(componentLength);
+                componentLength = new Integer(0);
+
+                biggestNode = nextNode;
+                exploreBackwardNode(biggestNode);
+            }
         }
     }
 
@@ -113,4 +165,25 @@ public class TaskLauncher {
 
         return newBiggest;
     }
+
+    private static Node findNextBiggestBackwardNode(Node node) {
+        Integer nextNodeIndex = backwardGraph.indexOf(node) - 1;
+
+        Node newBackwardNode = node;
+
+        Node newBiggest = null;
+
+        while (nextNodeIndex >= 0) {
+            //  System.out.println("nodeValue = " + nodeValue);
+            if (newBiggest.isExploredNode()) {
+                newBiggest = backwardGraph.get(nextNodeIndex);
+                //System.out.println("Explored Node: " + biggestNode);
+                break;
+            }
+            nextNodeIndex--;
+        }
+
+        return newBiggest;
+    }
+
 }
