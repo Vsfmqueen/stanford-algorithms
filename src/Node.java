@@ -55,19 +55,19 @@ public class Node {
     public String toString() {
 
         String ongoingNodesString = "Ongoing nodes : ";
-  //      String backwardNodesString = "Backward nodes : ";
+        String backwardNodesString = "Backward nodes : ";
 
         for (Node node : ongoingNodes) {
             ongoingNodesString += node.getValue() + " ";
         }
 
-    /*    for (Node node : backwardNodes) {
+        for (Node node : backwardNodes) {
             backwardNodesString += node.getValue() + " ";
         }
-*/
+
         return "Node{" +
                 "exploredNode=" + exploredNode +
-                ", value=" + value + ", ongoing=" + ongoingNodesString + /*", backward=" + backwardNodesString +*/
+                ", value=" + value + ", ongoing=" + ongoingNodesString + ", backward=" + backwardNodesString +
                 '}';
     }
 }

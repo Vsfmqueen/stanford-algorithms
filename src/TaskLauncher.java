@@ -1,8 +1,10 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /*
+    *TODO
 * change HashMap to ArrayList
 * change Node to index
 * */
@@ -13,36 +15,41 @@ public class TaskLauncher {
 
     private static ArrayList<Node> backwardGraph = new ArrayList();
 
-    private static ArrayList<Integer> componentsLengths;
+    private static ArrayList<Integer> componentsLengths = new ArrayList<Integer>() {{
+        add(0);
+        add(0);
+        add(0);
+        add(0);
+        add(0);
+    }};
+
 
     private static Node biggestNode;
 
     private static Integer componentLength = 0;
 
     public static void main(String... args) {
+        System.out.println("Started reading file..." + new Date());
         scanFile();
-        int greatestElement = initialGraph.size();
+        System.out.println("Ended reading file..." + new Date());
+        System.out.println("Started exploring initial graph..." + new Date());
+        int greatestElement = initialGraph.size() - 1;
         biggestNode = initialGraph.get(greatestElement);
         exploreNode(biggestNode);
 
         initialGraph = null;
+        System.out.println("Ended exploring initial graph..." + new Date());
 
-        //костыль
-        backwardGraph.remove(backwardGraph.size()-1);
-
-        for (Node node : backwardGraph) {
-            System.out.println("Backward Node: " + node);
-        }
-
-/*        biggestNode = backwardGraph.get(backwardGraph.size() - 1);
-        componentsLengths = new ArrayList();
-
+        biggestNode = backwardGraph.get(backwardGraph.size() - 1);
+        System.out.println("Started computing SCC..." + new Date());
         exploreBackwardNode(biggestNode);
-        System.out.print(componentsLengths);*/
+        Collections.sort(componentsLengths, Collections.reverseOrder());
+        System.out.println(componentsLengths.subList(0, 5));
+        System.out.println("Ended computing SCC..." + new Date());
     }
 
     private static void scanFile() {
-        File file = new File("c:\\example.txt");
+        File file = new File("c:\\SCC.txt");
 
         Scanner scanner = null;
         try {
@@ -56,7 +63,6 @@ public class TaskLauncher {
         } finally {
             scanner.close();
         }
-
     }
 
     private static void fillArray(String row, HashMap<Integer, Node> initialGraph) {
@@ -81,7 +87,6 @@ public class TaskLauncher {
     }
 
     private static void exploreNode(Node node) {
-        //    System.out.println("Current Node: " + node);
         if (!node.isExploredNode()) {
             node.setExploredNode(true);
             List<Node> onGoingNodes = node.getOngoingNodes();
@@ -93,52 +98,44 @@ public class TaskLauncher {
                 }
             }
 
+            if (backwardGraph.indexOf(node) == -1) {
+                backwardGraph.add(node);
+            }
+
             if (node.equals(biggestNode)) {
-                //  System.out.println("Explored Node: " + node);
                 Node nextNode = findNextBiggestNode();
 
                 if (nextNode.equals(biggestNode)) {
-                    System.out.print("The end");
                     return;
                 }
 
                 biggestNode = nextNode;
                 exploreNode(biggestNode);
             }
-            node.setOngoingNodes(node.getBackwardNodes());
-            backwardGraph.add(node);
-         //   System.out.println("Explored Node: " + node);
         }
     }
 
     private static void exploreBackwardNode(Node node) {
-        //    System.out.println("Current Node: " + node);
         if (node.isExploredNode()) {
             node.setExploredNode(false);
-            List<Node> onGoingNodes = node.getOngoingNodes();
+            List<Node> onGoingNodes = node.getBackwardNodes();
+
             for (Node onGoingNode : onGoingNodes) {
 
-                componentLength++;
-
                 if (onGoingNode.isExploredNode()) {
+                    componentLength++;
                     exploreBackwardNode(onGoingNode);
                 }
             }
 
-            node.setOngoingNodes(null);
-
-            if (node.equals(biggestNode)) {
-                //  System.out.println("Explored Node: " + node);
-
+            if (node.getValue().equals(biggestNode.getValue())) {
                 Node nextNode = findNextBiggestBackwardNode(biggestNode);
+                componentsLengths.add(componentLength + 1);
+                componentLength = 0;
 
                 if (nextNode.equals(biggestNode)) {
-                    System.out.print("The end");
                     return;
                 }
-
-                componentsLengths.add(componentLength);
-                componentLength = new Integer(0);
 
                 biggestNode = nextNode;
                 exploreBackwardNode(biggestNode);
@@ -152,38 +149,28 @@ public class TaskLauncher {
         Node newBiggest = null;
 
         while (nodeValue != 0) {
-          //  System.out.println("nodeValue = " + nodeValue);
             newBiggest = initialGraph.get(nodeValue);
             if (!newBiggest.isExploredNode()) {
-           //     biggestNode.setOngoingNodes(null);
                 backwardGraph.add(biggestNode);
-                //System.out.println("Explored Node: " + biggestNode);
                 break;
             }
             nodeValue--;
         }
-
         return newBiggest;
     }
 
     private static Node findNextBiggestBackwardNode(Node node) {
-        Integer nextNodeIndex = backwardGraph.indexOf(node) - 1;
+        Integer nextNodeIndex = backwardGraph.indexOf(node);
 
         Node newBackwardNode = node;
 
-        Node newBiggest = null;
-
-        while (nextNodeIndex >= 0) {
-            //  System.out.println("nodeValue = " + nodeValue);
-            if (newBiggest.isExploredNode()) {
-                newBiggest = backwardGraph.get(nextNodeIndex);
-                //System.out.println("Explored Node: " + biggestNode);
+        while (nextNodeIndex > 0) {
+            nextNodeIndex--;
+            newBackwardNode = backwardGraph.get(nextNodeIndex);
+            if (newBackwardNode.isExploredNode()) {
                 break;
             }
-            nextNodeIndex--;
         }
-
-        return newBiggest;
+        return newBackwardNode;
     }
-
 }
