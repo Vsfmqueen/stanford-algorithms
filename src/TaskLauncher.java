@@ -1,3 +1,5 @@
+import com.sun.javafx.css.FontUnits;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -18,7 +20,7 @@ public class TaskLauncher {
     public static void main(String... args) {
         graphNodes = new HashMap();
         vertices = new ArrayList<Integer>() {{
-            add(7);
+           /* add(7);
             add(37);
             add(59);
             add(82);
@@ -27,15 +29,31 @@ public class TaskLauncher {
             add(133);
             add(165);
             add(188);
-            add(197);
+            add(197);*/
+            add(2);
+            add(3);
+            add(4);
+            add(5);
+            add(6);
         }};
 
         selectedNodes = new ArrayList(vertices.size());
 
         scanFile();
+
         Set<Integer> keys = graphNodes.keySet();
         for (Integer key : keys) {
             System.out.println("Next node = " + key + "Distance = " + graphNodes.get(key));
+        }
+
+        GraphNode firstNode = graphNodes.get(1);
+
+        for (WeightNode weightNode : firstNode.getNodes()) {
+            System.out.println(weightNode.getNextNodeKey());
+            Integer graphValue = weightNode.getNextNodeKey();
+            GraphNode node = graphNodes.get(graphValue);
+            System.out.println(node);
+            findShortestPath(node);
         }
     }
 
@@ -63,11 +81,12 @@ public class TaskLauncher {
         for (String rowDatum : rowData) {
             if (!rowDatum.contains(",")) {
                 nodeValue = Integer.parseInt(rowDatum);
+                node.setKey(nodeValue);
             } else {
                 String[] nextNodeData = rowDatum.split(",");
                 WeightNode nextNode = new WeightNode();
-                nextNode.setNodeKey(Integer.parseInt(nextNodeData[0]));
-                nextNode.setNodeValue(Integer.parseInt(nextNodeData[1]));
+                nextNode.setNextNodeKey(Integer.parseInt(nextNodeData[0]));
+                nextNode.setDistance(Integer.parseInt(nextNodeData[1]));
                 node.getNodes().add(nextNode);
             }
         }
@@ -75,17 +94,20 @@ public class TaskLauncher {
     }
 
     private static void findShortestPath(GraphNode node) {
-        if (node.getKey() > vertices.get(vertices.size() - 1)) {
+ /*       if (node.getKey() > vertices.get(vertices.size() - 1)) {
             return;
-        }
+        }*/
 
         if (vertices.contains(node.getKey())) {
             node.setPathValue(pathValue);
             selectedNodes.add(node);
+            vertices.remove(node);
+            pathValue = 0;
         }
+
         //return a node with the smallest weight
         WeightNode weightNode = node.getNodes().peek();
-        pathValue += weightNode.getNodeValue();
+        pathValue += weightNode.getDistance();
         GraphNode nextNode = graphNodes.get(weightNode);
 
         findShortestPath(nextNode);
