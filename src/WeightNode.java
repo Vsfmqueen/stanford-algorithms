@@ -2,7 +2,7 @@
  * Created by Vera_Sidarovich on 7/10/2014.
  */
 public class WeightNode implements Comparable<WeightNode> {
-    private int nextNodeKey;
+    private int nodeKey;
     private int distance;
 
     public WeightNode() {
@@ -10,16 +10,16 @@ public class WeightNode implements Comparable<WeightNode> {
     }
 
     public WeightNode(int nextNodeKey, int distance) {
-        this.nextNodeKey = nextNodeKey;
+        this.nodeKey = nextNodeKey;
         this.distance = distance;
     }
 
-    public int getNextNodeKey() {
-        return nextNodeKey;
+    public int getNodeKey() {
+        return nodeKey;
     }
 
-    public void setNextNodeKey(int nextNodeKey) {
-        this.nextNodeKey = nextNodeKey;
+    public void setNodeKey(int nextNodeKey) {
+        this.nodeKey = nextNodeKey;
     }
 
     public int getDistance() {
@@ -38,7 +38,7 @@ public class WeightNode implements Comparable<WeightNode> {
     @Override
     public String toString() {
         return "WeightNode{" +
-                "nextNodeKey=" + nextNodeKey +
+                "nodeKey=" + nodeKey +
                 ", distance=" + distance +
                 '}';
     }

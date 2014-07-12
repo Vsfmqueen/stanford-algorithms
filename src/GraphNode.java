@@ -10,6 +10,7 @@ public class GraphNode {
 
     public GraphNode() {
         nodes = new PriorityQueue<WeightNode>();
+        pathValue = 0;
     }
 
     public GraphNode(PriorityQueue<WeightNode> nodes) {
