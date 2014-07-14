@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -22,17 +23,25 @@ public class TaskLauncher {
         firstNode.setDistance(0);
         firstNode.setDirty(true);
 
-        for (GraphNode node : firstNode.getNodes()) {
+        Iterator<GraphNode> iterator = firstNode.getNodes().iterator();
+
+        while (iterator.hasNext()) {
+            GraphNode nextChildNode = firstNode.getNodes().poll();
+            System.out.println("Next source node = "+nextChildNode);
             pathValue = 0;
-            setShortestPath(node);
-            findShortestPath(node);
+            setShortestPath(nextChildNode);
+            findShortestPath(nextChildNode);
         }
 
         for (GraphNode node : graph) {
             System.out.println(node.getKey() + " :  " + node.getDistance());
         }
 
-        // ArrayList<Integer> vertices = getVerticesFromFile();
+        ArrayList<Integer> vertices = getVerticesFromFile();
+
+     /*   for (Integer vertice : vertices) {
+            System.out.println("Vertice = " + vertice + " Distance = " + graph.get(vertice - 1).getDistance());
+        }*/
     }
 
     private static void fillGraphFromFile() {
@@ -41,7 +50,7 @@ public class TaskLauncher {
 
         try {
             scanner = new Scanner(file);
-            while (scanner.hasNext()) {
+            while (scanner.hasNextLine()) {
                 String row = scanner.nextLine();
                 addNewGraphNode(row);
             }
@@ -59,9 +68,9 @@ public class TaskLauncher {
 
         try {
             scanner = new Scanner(file);
-            while (scanner.hasNext()) {
+            while (scanner.hasNextLine()) {
                 String row = scanner.nextLine();
-                vertices.add(Integer.parseInt(scanner.nextLine()));
+                vertices.add(Integer.parseInt(row));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -81,7 +90,7 @@ public class TaskLauncher {
                 nodeValue = Integer.parseInt(rowDatum);
                 node.setKey(nodeValue);
                 graph.add(nodeValue - 1, node);
-                node.setDistance(Integer.MAX_VALUE);
+                node.setDistance(1000000);
             } else {
                 String[] nextNodeData = rowDatum.split(",");
 
@@ -101,32 +110,49 @@ public class TaskLauncher {
         Integer childNodeIndex = childNode.getKey() - 1;
         pathValue += childNode.getDistance();
 
+        System.out.println("Path value = " + pathValue + " Node value = " + childNode);
+
         GraphNode actualNode = graph.get(childNodeIndex);
 
         for (GraphNode node : actualNode.getNodes()) {
             setShortestPath(node);
         }
 
-        if (!actualNode.isDirty()) {
-            actualNode.setDirty(true);
-            GraphNode nextChildNode = null;
+        actualNode.setDirty(true);
+        Iterator<GraphNode> iterator =actualNode.getNodes().iterator();
 
-            for (GraphNode nextNode : actualNode.getNodes()) {
-                if (!nextNode.isDirty()) {
-                    nextChildNode = nextNode;
-                    break;
-                }
+        ArrayList<GraphNode> peeks = new ArrayList<GraphNode>();
+
+        while (iterator.hasNext()) {
+            //не удалять вершину
+            GraphNode nextChildNode = actualNode.getNodes().poll();
+            peeks.add(nextChildNode);
+            if (!graph.get(nextChildNode.getKey() - 1).isDirty()) {//ошибка
+                findShortestPath(nextChildNode);
+
+                break;
             }
-            findShortestPath(nextChildNode);
         }
+
+         actualNode.getNodes().addAll(peeks);
     }
 
     private static void setShortestPath(GraphNode node) {
         GraphNode childActualNode = graph.get(node.getKey() - 1);
+
+        //System.out.println("Current path = "+pathValue);
+        //System.out.println("Node = " + childActualNode.getKey() + " Distance = " + node.getDistance());
+
         int newPath = node.getDistance() + pathValue;
+
+        if(node.getKey().equals(5)){
+            System.out.println(5);
+        }
+
         Integer oldPath = childActualNode.getDistance();
         if (oldPath > newPath) {
             childActualNode.setDistance(newPath);
+            System.out.println("Changed from = " + oldPath + " to " + newPath);
         }
     }
 }
