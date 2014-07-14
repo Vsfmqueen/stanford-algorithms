@@ -1,72 +1,44 @@
-import com.sun.javafx.css.FontUnits;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * Created by Vera_Sidarovich on 7/10/2014.
  */
 public class TaskLauncher {
 
-    private static Integer SOURCE_VERTEX = 1;
+    private static final Integer SOURCE_VERTEX_INDEX = 0;
 
-    private static HashMap<Integer, GraphNode> graphNodes;
-
-    private static ArrayList<Integer> vertices;
-
-    private static ArrayList<GraphNode> selectedNodes;
+    private static ArrayList<GraphNode> graph;
 
     private static Integer pathValue;
 
     public static void main(String... args) {
-        graphNodes = new HashMap();
-        vertices = new ArrayList<Integer>() {{
-           /* add(7);
-            add(37);
-            add(59);
-            add(82);
-            add(99);
-            add(115);
-            add(133);
-            add(165);
-            add(188);
-            add(197);*/
-            add(2);
-            add(3);
-            add(4);
-            add(5);
-            add(6);
-        }};
+        graph = new ArrayList<GraphNode>();
+        fillGraphFromFile();
 
-        selectedNodes = new ArrayList(vertices.size());
+        GraphNode firstNode = graph.get(SOURCE_VERTEX_INDEX);
+        firstNode.setDistance(0);
+        firstNode.setDirty(true);
 
-        scanFile();
-
-        Set<Integer> keys = graphNodes.keySet();
-        for (Integer key : keys) {
-            System.out.println("Node = " + graphNodes.get(key));
-        }
-
-        GraphNode firstNode = graphNodes.get(SOURCE_VERTEX);
-
-        for (WeightNode weightNode : firstNode.getNodes()) {
+        for (GraphNode node : firstNode.getNodes()) {
             pathValue = 0;
-            System.out.println(weightNode.getNodeKey());
-            findShortestPath(weightNode);
+            setShortestPath(node);
+            findShortestPath(node);
         }
 
-        for (GraphNode node : selectedNodes) {
-            System.out.println("Node = " + node.getKey() + " PathValue = " + node.getPathValue());
+        for (GraphNode node : graph) {
+            System.out.println(node.getKey() + " :  " + node.getDistance());
         }
 
-        System.out.println(vertices);
+        // ArrayList<Integer> vertices = getVerticesFromFile();
     }
 
-    private static void scanFile() {
+    private static void fillGraphFromFile() {
+        Scanner scanner = null;
         File file = new File("c:\\test.txt");
 
-        Scanner scanner = null;
         try {
             scanner = new Scanner(file);
             while (scanner.hasNext()) {
@@ -80,51 +52,81 @@ public class TaskLauncher {
         }
     }
 
+    private static ArrayList<Integer> getVerticesFromFile() {
+        Scanner scanner = null;
+        File file = new File("c:\\vertices.txt");
+        ArrayList<Integer> vertices = new ArrayList<Integer>();
+
+        try {
+            scanner = new Scanner(file);
+            while (scanner.hasNext()) {
+                String row = scanner.nextLine();
+                vertices.add(Integer.parseInt(scanner.nextLine()));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            scanner.close();
+        }
+        return vertices;
+    }
+
     private static void addNewGraphNode(String row) {
         String[] rowData = row.split("\t");
         Integer nodeValue = null;
         GraphNode node = new GraphNode();
+
         for (String rowDatum : rowData) {
             if (!rowDatum.contains(",")) {
                 nodeValue = Integer.parseInt(rowDatum);
                 node.setKey(nodeValue);
+                graph.add(nodeValue - 1, node);
+                node.setDistance(Integer.MAX_VALUE);
             } else {
                 String[] nextNodeData = rowDatum.split(",");
-                WeightNode nextNode = new WeightNode();
-                nextNode.setNodeKey(Integer.parseInt(nextNodeData[0]));
-                nextNode.setDistance(Integer.parseInt(nextNodeData[1]));
-                node.getNodes().add(nextNode);
+
+                Integer childNodeValue = Integer.parseInt(nextNodeData[0]);
+                Integer childNodeDistance = Integer.parseInt(nextNodeData[1]);
+
+                GraphNode childNode = new GraphNode();
+                childNode.setKey(childNodeValue);
+                childNode.setDistance(childNodeDistance);
+
+                node.getNodes().add(childNode);
             }
         }
-        graphNodes.put(nodeValue, node);
     }
 
-    private static void findShortestPath(WeightNode weightNode) {
+    private static void findShortestPath(GraphNode childNode) {
+        Integer childNodeIndex = childNode.getKey() - 1;
+        pathValue += childNode.getDistance();
 
-        if (vertices.size() == 0) {
-            return;
+        GraphNode actualNode = graph.get(childNodeIndex);
+
+        for (GraphNode node : actualNode.getNodes()) {
+            setShortestPath(node);
         }
 
-        pathValue += weightNode.getDistance();
+        if (!actualNode.isDirty()) {
+            actualNode.setDirty(true);
+            GraphNode nextChildNode = null;
 
-        Integer graphValue = weightNode.getNodeKey();
-        GraphNode node = graphNodes.get(graphValue);
-
-        if (vertices.contains(node.getKey())) {
-            node.setPathValue(pathValue);
-            selectedNodes.add(node);
-            vertices.remove(node.getKey());
+            for (GraphNode nextNode : actualNode.getNodes()) {
+                if (!nextNode.isDirty()) {
+                    nextChildNode = nextNode;
+                    break;
+                }
+            }
+            findShortestPath(nextChildNode);
         }
+    }
 
-        //return a node with the smallest weight
-        WeightNode nextWeightNode = node.getNodes().peek();
-        GraphNode nextNode = graphNodes.get(nextWeightNode);
-
-        for(WeightNode nodes: nextNode.getNodes()){
-            //обновить значения вершин
+    private static void setShortestPath(GraphNode node) {
+        GraphNode childActualNode = graph.get(node.getKey() - 1);
+        int newPath = node.getDistance() + pathValue;
+        Integer oldPath = childActualNode.getDistance();
+        if (oldPath > newPath) {
+            childActualNode.setDistance(newPath);
         }
-
-
-        findShortestPath(nextWeightNode);
     }
 }
